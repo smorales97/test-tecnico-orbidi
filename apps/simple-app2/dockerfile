@@ -1,0 +1,17 @@
+# apps/simple-app2/Dockerfile
+FROM python:3.9-slim
+
+# Directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos necesarios
+COPY . /app
+
+# Instalar las dependencias
+RUN python -m venv /app/venv && /app/venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# Puerto App run
+EXPOSE 8001
+
+# Ejecucion de la aplicación
+CMD ["sh", "-c", ". /app/venv/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8001"]

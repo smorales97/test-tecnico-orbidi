@@ -1,0 +1,111 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1"
+
+      - name: View Replace
+        run: cat ./terraform/main.tf
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+      
+      - name: Init Terraform s3
+        run: |
+          cd ./tf-s3-state
+          terraform init
+      - name: Run plan Terraform s3
+        run: |
+          cd ./terraform
+          terraform plan
+      - name: Apply terrafom s3
+        run: |
+          cd ./terraform
+          terraform apply
+
+      - name: Initial Terrafom
+        run: |
+          cd ./terraform
+          terraform init
+      - name: Run plan terraform
+        run: |
+          cd ./terraform
+          terraform plan -out=plan.out -var-file variables.tfvars
+      - name: Apply terrafom
+        run: |
+          cd ./terraform
+          terraform apply plan.out
+      
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        run: |
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        
+      - name: Check repository App1
+        run: |
+            repo_exists=$(aws ecr describe-repositories --repository-names "simple_app1" --region "us-east-1" || true)
+
+            if ! echo "${repo_exists}" | grep -q "simple_app1"; then
+            # Si el repositorio no existe falla
+            exit 1
+            fi
+            echo "El repositorio existe."
+
+      - name: Check repository App2
+        run: |
+            repo_exists=$(aws ecr describe-repositories --repository-names "simple_app2" --region "us-east-1" || true)
+
+            if ! echo "${repo_exists}" | grep -q "simple_app2"; then
+            # Si el repositorio no existe falla
+            exit 1
+            fi
+            echo "El repositorio existe."
+
+      - name: Build App1
+        run: |
+          # Set up variables
+          ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          ECR_REPOSITORY=simple_app1
+          IMAGE_TAG=${GITHUB_SHA::7}
+
+          # Build the Docker image
+          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app1
+
+          # Tag and push the image to ECR
+          docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Build App2
+        run: |
+          # Set up variables
+          ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          ECR_REPOSITORY=simple_app2
+          IMAGE_TAG=${GITHUB_SHA::7}
+
+          # Build the Docker image
+          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app2
+
+          # Tag and push the image to ECR
+          docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
