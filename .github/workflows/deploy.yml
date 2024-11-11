@@ -29,11 +29,11 @@ jobs:
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=simple-app1
+          ECR_REPOSITORY=app1
           IMAGE_TAG=${GITHUB_SHA::7}
 
           # Build the Docker image
-          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG .test-tecnico-orbidi/apps/simple-app1
+          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app1
 
           # Tag and push the image to ECR
           docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -46,11 +46,11 @@ jobs:
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=simple-app2
+          ECR_REPOSITORY=app2
           IMAGE_TAG=${GITHUB_SHA::7}
 
           # Build the Docker image
-          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG .test-tecnico-orbidi/apps/simple-app2
+          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app2
 
           # Tag and push the image to ECR
           docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
