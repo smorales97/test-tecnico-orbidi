@@ -1,11 +1,11 @@
 # backend.tf
-#terraform {
- # backend "s3" {
-  #  bucket         = "state-bucket"
-  #  key            = "terraform/terraform.tfstate"
-   # region         = "us-east-1"
-    #dynamodb_table = "tf-state-lock"
- # }
-#}
+terraform {
+  backend "s3" {
+    bucket         = "tf-s3-state"
+    key            = "terraform/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "app-state-lock"
+  }
+}
 
 
