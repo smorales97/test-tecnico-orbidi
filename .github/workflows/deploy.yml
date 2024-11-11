@@ -31,14 +31,14 @@ jobs:
           terraform init
       - name: Run plan Terraform s3
         run: |
-          cd ./terraform
+          cd ./tf-s3-state
           terraform plan
       - name: Apply terrafom s3
         run: |
-          cd ./terraform
+          cd ./tf-s3-state
           terraform apply
 
-      - name: Initial Terrafom
+      - name: Initial IaC
         run: |
           cd ./terraform
           terraform init
