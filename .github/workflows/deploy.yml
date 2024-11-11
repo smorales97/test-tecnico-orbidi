@@ -70,18 +70,41 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+      - name: View Replace
+        run: cat ./iac/main.tf
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v1
-
-      - name: Terraform Init
+        uses: hashicorp/setup-terraform@v2
+      - name: Initial Terrafom
         run: |
-          terraform init \
-            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
-            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
-            -backend-config="region=${{ secrets.AWS_REGION }}"
+          cd ./terraform
+          terraform init
+      - name: Run plan terraform
+        run: |
+          cd ./terraform
+          terraform plan
+      - name: Apply terrafom
+        run: |
+          cd ./terraform
+          terraform apply -destroy
 
-      - name: Terraform plan
-        run: terraform plan -out=tfplan
+
+
+
+
+
+
+      #- name: Install Terraform
+       # uses: hashicorp/setup-terraform@v1
+
+      #- name: Terraform Init
+       # run: |
+        #  terraform init \
+         #   -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+          #  -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+           # -backend-config="region=${{ secrets.AWS_REGION }}"
+
+      #- name: Terraform plan
+       # run: terraform plan -out=tfplan
     
       #- name: Terraform Apply
         #if: success()
