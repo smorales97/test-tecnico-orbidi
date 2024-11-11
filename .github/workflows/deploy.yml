@@ -23,13 +23,21 @@ jobs:
       - name: Log in to Amazon ECR
         id: login-ecr
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+      - name: Check and Create ECR Repository if not exist
+        run: |
+          repo_exists=$(aws ecr describe-repositories --repository-names orbidi-apps --region ${{ vars.AWS_REGION }} || true)
+          if ! echo "${repo_exists}" | grep -q orbidi-apps; then
+            # If not exist, create it
+            aws ecr create-repository --repository-name orbidi-apps --region ${{ vars.AWS_REGION }}
+          fi
+          echo "Repository exist"
 
-      - name: Build, tag, and push Docker image for App1
+      - name: Build App1
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=app1
+          ECR_REPOSITORY=orbidi-apps
           IMAGE_TAG=${GITHUB_SHA::7}
 
           # Build the Docker image
@@ -42,11 +50,11 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Build, tag, and push Docker image for App2
+      - name: Build App2
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=app2
+          ECR_REPOSITORY=orbidi-apps
           IMAGE_TAG=${GITHUB_SHA::7}
 
           # Build the Docker image
