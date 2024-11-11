@@ -27,11 +27,11 @@ jobs:
       
       - name: Check and Create ECR Repository if not exist
         run: |
-            repo_exists=$(aws ecr describe-repositories --repository-names "orbidi-apps" --region "${{ vars.AWS_REGION }}" || true)
+            repo_exists=$(aws ecr describe-repositories --repository-names "orbidi-apps" --region "us-east-1" || true)
 
             if ! echo "${repo_exists}" | grep -q "orbidi-apps"; then
             # Si el repositorio no existe, créalo
-            aws ecr create-repository --repository-name "orbidi-apps" --region "${{ vars.AWS_REGION }}"
+            aws ecr create-repository --repository-name "orbidi-apps" --region "us-east-1"
             fi
 
             echo "El repositorio existe y/o ha sido creado exitosamente."
