@@ -36,7 +36,7 @@ jobs:
       - name: Apply terrafom s3
         run: |
           cd ./tf-s3-state
-          terraform apply
+          terraform apply --auto-approve
 
       - name: Initial IaC
         run: |
