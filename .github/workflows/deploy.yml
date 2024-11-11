@@ -29,11 +29,11 @@ jobs:
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=app1
+          ECR_REPOSITORY=simple-app1
           IMAGE_TAG=${GITHUB_SHA::7}
 
           # Build the Docker image
-          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/app1
+          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app1
 
           # Tag and push the image to ECR
           docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -46,11 +46,11 @@ jobs:
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=app2
+          ECR_REPOSITORY=simple-app2
           IMAGE_TAG=${GITHUB_SHA::7}
 
           # Build the Docker image
-          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/app2
+          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app2
 
           # Tag and push the image to ECR
           docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -71,7 +71,7 @@ jobs:
 
       - name: Terraform Apply
         env:
-          TF_VAR_app1_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/app1:${GITHUB_SHA::7}
-          TF_VAR_app2_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/app2:${GITHUB_SHA::7}
+          TF_VAR_app1_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app1:${GITHUB_SHA::7}
+          TF_VAR_app2_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app2:${GITHUB_SHA::7}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
         run: terraform apply -auto-approve
