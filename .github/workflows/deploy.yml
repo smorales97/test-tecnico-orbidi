@@ -80,9 +80,17 @@ jobs:
             -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
             -backend-config="region=${{ secrets.AWS_REGION }}"
 
-      - name: Terraform Apply
+      - name: Terraform Plan
         env:
-          TF_VAR_app1_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app1:${GITHUB_SHA::7}
-          TF_VAR_app2_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app2:${GITHUB_SHA::7}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
-        run: terraform apply -auto-approve
+              TF_VAR_app1_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app1:${GITHUB_SHA::7}
+              TF_VAR_app2_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app2:${GITHUB_SHA::7}
+              TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        run: terraform plan -out=tfplan
+    
+      - name: Terraform Apply
+        if: success()
+        env:
+              TF_VAR_app1_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app1:${GITHUB_SHA::7}
+              TF_VAR_app2_image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-app2:${GITHUB_SHA::7}
+              TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        run: terraform apply -auto-approve tfplan
