@@ -12,6 +12,10 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_internet_gateway" "internet_gateway" {
+  vpc_id = aws_vpc.main.id
+}
+
 # Subnet pública
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidr_blocks)
@@ -32,6 +36,22 @@ resource "aws_security_group" "ecs_sg" {
   }
 
   # Regla para permitir tráfico HTTP
+    ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP inbound traffic"
+  }
+
+    ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP inbound traffic"
+  }
+  
   ingress {
     from_port   = 8000
     to_port     = 8000

@@ -1,12 +1,12 @@
 # variables.tf (ECR module)
 
-variable "simple-app1_image" {
+variable "simple-app1-image" {
   description = "Nombre del repositorio de ECR para la imagen de app1"
   type        = string
   default     = "simple-app1"
 }
 
-variable "simple-app2_image" {
+variable "simple-app2-image" {
   description = "Nombre del repositorio de ECR para la imagen de app2"
   type        = string
   default     = "simple-app2"

@@ -1,12 +1,6 @@
 # Bucket de S3 para almacenamiento de estado de Terraform
 resource "aws_s3_bucket" "terraform_state" {
   bucket = var.state_bucket_name
-  acl    = "private"
-
-  versioning {
-    enabled = var.versioning_enabled
-  }
-
   tags = {
     Name = "tf state bucket"
   }
@@ -25,5 +19,6 @@ resource "aws_dynamodb_table" "terraform_lock_table" {
 
   tags = {
     Name = "Terraform Lock Table"
+    dynamodb_table_name = "dynamo-table"
   }
 }
