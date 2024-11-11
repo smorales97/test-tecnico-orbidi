@@ -4,7 +4,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "tf-s3-state"
-     
+  region = "us-east-1"
   lifecycle {
     prevent_destroy = true
   }
