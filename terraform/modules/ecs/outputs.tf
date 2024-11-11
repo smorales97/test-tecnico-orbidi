@@ -1,6 +1,6 @@
 # outputs.tf (ECS module)
 
-output "load_balancer_dns" {
+output "load_balancer_dns_1" {
   description = "El DNS del Application Load Balancer"
   value       = aws_lb.main.dns_name
 }

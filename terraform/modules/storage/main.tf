@@ -1,5 +1,3 @@
-# main.tf (storage module)
-
 # Bucket de S3 para almacenamiento de estado de Terraform
 resource "aws_s3_bucket" "terraform_state" {
   bucket = var.state_bucket_name
