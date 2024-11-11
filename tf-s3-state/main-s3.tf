@@ -1,10 +1,8 @@
 provider "aws" {
-  region = "us-east-1"
 }
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "tf-s3-state"
-  region = "us-east-1"
+  bucket = "tf-s3-state-orbidi-smorales"
   lifecycle {
     prevent_destroy = true
   }
