@@ -24,10 +24,3 @@ module "ecs" {
   app1_image_url  = module.ecr.app1_image_url
   app2_image_url  = module.ecr.app2_image_url
 }
-
-# Módulo de almacenamiento para el estado
-module "storage" {
-  source = "./modules/storage"
-  state_bucket_name = var.state_bucket_name
-  dynamodb_table_name = var.dynamodb_table
-}
