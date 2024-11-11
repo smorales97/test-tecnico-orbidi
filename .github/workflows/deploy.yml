@@ -71,7 +71,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: View Replace
-        run: cat ./iac/main.tf
+        run: cat ./terraform/main.tf
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
       - name: Initial Terrafom
