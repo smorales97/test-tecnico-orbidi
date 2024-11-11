@@ -25,18 +25,19 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
       
-      - name: Init Terraform s3
+      - name: Checkear si S3 bucket existe
+        id: check_s3
         run: |
-          cd ./tf-s3-state
-          terraform init
-      - name: Run plan Terraform s3
-        run: |
-          cd ./tf-s3-state
-          terraform plan
-      - name: Apply terrafom s3
-        run: |
-          cd ./tf-s3-state
-          terraform apply --auto-approve
+          BUCKET_NAME="tf-s3-state-orbidi-smorales"
+          if aws s3 ls "s3://$BUCKET_NAME" 2>&1 | grep -q 'NoSuchBucket'; then
+            echo "Bucket does not exist."
+            cd ./tf-s3-state
+            terraform init
+            terraform plan
+            terraform apply --auto-approve
+          else
+            echo "Bucket exists."
+          fi
 
       - name: Initial IaC
         run: |
