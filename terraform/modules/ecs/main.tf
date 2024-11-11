@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "simple-app1" {
   container_definitions = jsonencode([
     {
       name      = "simple-App1-Container"
-      image     = "${var.app1_image_url}:latest:latest"
+      image     = "${var.app1_image_url}:latest"
       cpu       = 256
       memory    = 512
       essential = true
@@ -181,7 +181,7 @@ resource "aws_ecs_task_definition" "simple-app2" {
   container_definitions = jsonencode([
     {
       name      = "simple-App2-Container"
-      image     = "${var.app2_image_url}:latest:latest"
+      image     = "${var.app2_image_url}:latest"
       cpu       = 256
       memory    = 512
       essential = true
