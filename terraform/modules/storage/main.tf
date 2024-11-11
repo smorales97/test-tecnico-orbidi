@@ -8,7 +8,7 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 
   tags = {
-    Name = "Tf State Bucket"
+    Name = "tf state bucket"
   }
 }
 
