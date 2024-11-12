@@ -58,7 +58,7 @@ resource "aws_lb_listener" "apps_listener" {
 
 resource "aws_lb_listener_rule" "simple-app1_rule" {
   listener_arn = aws_lb_listener.apps_listener.arn
-  priority     = 20
+  priority     = 1
 
   action {
     type             = "forward"
@@ -98,7 +98,7 @@ resource "aws_lb_target_group" "simple-app1" {
 health_check {
   path                = "/"
   interval            = 30
-  timeout             = 5
+  timeout             = 45
   healthy_threshold   = 2
   unhealthy_threshold = 2
   }
@@ -135,7 +135,7 @@ resource "aws_ecs_service" "simple-app1" {
   cluster         = aws_ecs_cluster.apps.id
   task_definition = aws_ecs_task_definition.simple-app1.arn
   launch_type     = "FARGATE"
-  desired_count = 2
+  desired_count = 1
 
   load_balancer {
     target_group_arn = aws_lb_target_group.simple-app1.arn
@@ -165,7 +165,7 @@ resource "aws_lb_target_group" "simple-app2" {
   health_check {
   path                = "/"
   interval            = 30
-  timeout             = 5
+  timeout             = 45
   healthy_threshold   = 2
   unhealthy_threshold = 2
   }
