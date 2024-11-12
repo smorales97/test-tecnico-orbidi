@@ -28,7 +28,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 resource "aws_iam_policy_attachment" "ecs_task_execution_role_attachment" {
   name       = "ecsTaskExecutionRolePolicyAttachment"
   roles      = [aws_iam_role.ecs_task_execution_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_lb" "main" {
@@ -67,7 +67,7 @@ resource "aws_lb_listener_rule" "simple-app1_rule" {
 
   condition {
     path_pattern {
-      values = ["/app1/*"]
+      values = ["/app1/"]
     }
   }
 }
@@ -149,7 +149,7 @@ resource "aws_lb_listener_rule" "simple-app2_rule" {
 
   condition {
     path_pattern {
-      values = ["/app2/*"]
+      values = ["/app2/"]
     }
   }
 }
