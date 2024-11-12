@@ -72,22 +72,6 @@ resource "aws_lb_listener_rule" "simple-app1_rule" {
   }
 }
 
-resource "aws_lb_listener_rule" "simple-app2_rule" {
-  listener_arn = aws_lb_listener.apps_listener.arn
-  priority     = 2
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.simple-app2.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/app2/*"]
-    }
-  }
-}
-
 resource "aws_lb_target_group" "simple-app1" {
   port     = 8000
   protocol = "HTTP"
@@ -154,6 +138,21 @@ resource "aws_ecs_service" "simple-app1" {
                                             #App2
 ##############################################################################################
 
+resource "aws_lb_listener_rule" "simple-app2_rule" {
+  listener_arn = aws_lb_listener.apps_listener.arn
+  priority     = 2
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.simple-app2.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/app2/*"]
+    }
+  }
+}
 
 resource "aws_lb_target_group" "simple-app2" {
   port     = 8001
