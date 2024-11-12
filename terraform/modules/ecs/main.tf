@@ -82,7 +82,7 @@ resource "aws_lb_target_group" "simple-app1" {
 health_check {
   path                = "/"
   interval            = 30
-  timeout             = 45
+  timeout             = 5
   healthy_threshold   = 2
   unhealthy_threshold = 2
   }
@@ -164,7 +164,7 @@ resource "aws_lb_target_group" "simple-app2" {
   health_check {
   path                = "/"
   interval            = 30
-  timeout             = 45
+  timeout             = 5
   healthy_threshold   = 2
   unhealthy_threshold = 2
   }
