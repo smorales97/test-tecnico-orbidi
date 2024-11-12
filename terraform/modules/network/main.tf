@@ -21,13 +21,6 @@ resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.main.id
 }
 
-resource "aws_route" "internet_access" {
-  route_table_id         = aws_route_table.public_route_table.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.internet_gateway.id
-}
-
-
 # Subnet pública
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidr_blocks)
@@ -84,13 +77,6 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all outbound traffic"
   }
