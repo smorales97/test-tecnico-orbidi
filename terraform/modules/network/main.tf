@@ -16,11 +16,6 @@ resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.main.id
 }
 
-# Crear una Route Table para la VPC
-resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.main.id
-}
-
 # Subnet pública
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidr_blocks)
