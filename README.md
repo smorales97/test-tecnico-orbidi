@@ -1,4 +1,4 @@
-# prueba-tecnica-orbidi
+# Prueba-tecnica-orbidi
 En el siguiente readme se explicara brevemente como se trabajo en la implementación de la IaC y todo lo necesario para desplegar una aplicación FastApi.
 
 Herramientas:
