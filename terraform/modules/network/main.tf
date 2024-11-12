@@ -40,14 +40,6 @@ resource "aws_subnet" "public" {
   }
 }
 
-# Asocia la tabla de rutas pública a la Subnet pública
-resource "aws_route_table_association" "public_association" {
-  
-  for_each       = aws_subnet.public
-  subnet_id = each.value.id
-  route_table_id = aws_route_table.public_route_table.id
-}
-
 # Grupo de seguridad para ECS
 resource "aws_security_group" "ecs_sg" {
   vpc_id = aws_vpc.main.id
