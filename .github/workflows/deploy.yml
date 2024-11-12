@@ -51,6 +51,7 @@ jobs:
       - name: Initial IaC
         run: |
           cd ./terraform
+          terraform init -reconfigure
           terraform init
       - name: Run plan terraform
         run: |
