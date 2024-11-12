@@ -91,8 +91,9 @@ resource "aws_lb_listener_rule" "simple-app2_rule" {
 resource "aws_lb_target_group" "simple-app1" {
   port     = 8000
   protocol = "HTTP"
-  vpc_id   = var.vpc_id
   target_type = "ip"
+  vpc_id   = var.vpc_id
+  
 
 health_check {
   path                = "/"
@@ -134,12 +135,7 @@ resource "aws_ecs_service" "simple-app1" {
   cluster         = aws_ecs_cluster.apps.id
   task_definition = aws_ecs_task_definition.simple-app1.arn
   launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = var.public_subnets
-    security_groups = [var.ecs_sg]
-    assign_public_ip = true
-  }
+  desired_count = 2
 
   load_balancer {
     target_group_arn = aws_lb_target_group.simple-app1.arn
@@ -147,7 +143,11 @@ resource "aws_ecs_service" "simple-app1" {
     container_port   = 8000
   }
 
-  desired_count = 1
+  network_configuration {
+    subnets         = var.public_subnets
+    security_groups = [var.ecs_sg]
+    assign_public_ip = true
+  }
 }
 
 ##############################################################################################
@@ -158,8 +158,9 @@ resource "aws_ecs_service" "simple-app1" {
 resource "aws_lb_target_group" "simple-app2" {
   port     = 8001
   protocol = "HTTP"
-  vpc_id   = var.vpc_id
   target_type = "ip"
+  vpc_id   = var.vpc_id
+  
 
   health_check {
   path                = "/"
@@ -200,12 +201,7 @@ resource "aws_ecs_service" "simple-app2" {
   cluster         = aws_ecs_cluster.apps.id
   task_definition = aws_ecs_task_definition.simple-app2.arn
   launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = var.public_subnets
-    security_groups = [var.ecs_sg]
-    assign_public_ip = true
-  }
+  desired_count = 2
 
   load_balancer {
     target_group_arn = aws_lb_target_group.simple-app2.arn
@@ -213,8 +209,28 @@ resource "aws_ecs_service" "simple-app2" {
     container_port   = 8001
   }
 
-  desired_count = 1
+  network_configuration {
+    subnets         = var.public_subnets
+    security_groups = [var.ecs_sg]
+    assign_public_ip = true
+  }
 }
+
+resource "aws_security_group" "service_security_group" {
+    ingress {
+        from_port = 0
+        to_port   = 0
+        protocol  = "-1"
+        security_groups = ["${aws_security_group.load_balancer_security_group.id}"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}    
 
 output "load_balancer_dns" {
   value = aws_lb.main.dns_name
