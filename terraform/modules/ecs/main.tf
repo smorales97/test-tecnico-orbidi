@@ -28,7 +28,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 resource "aws_iam_policy_attachment" "ecs_task_execution_role_attachment" {
   name       = "ecsTaskExecutionRolePolicyAttachment"
   roles      = [aws_iam_role.ecs_task_execution_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
 }
 
 resource "aws_lb" "main" {
