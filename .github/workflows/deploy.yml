@@ -11,7 +11,7 @@ jobs:
     env:
         # Terraform variables
         TF_VAR_IMAGE_TAG: ${{ github.sha }}
-        TF_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+        TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
         TF_VAR_AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         TF_VAR_SIMPLE_APP2: ${{ vars.SIMPLE_APP2 }}
         TF_VAR_SIMPLE_APP1: ${{ vars.SIMPLE_APP1 }}
