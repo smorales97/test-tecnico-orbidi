@@ -117,11 +117,13 @@ jobs:
           terraform plan -out=plan.out
 
       - name: Apply terrafom
+        if : ${{ vars.DESTROY == 'false' }}
         run: |
           cd ./terraform
           terraform apply plan.out
 
       - name: destroy terraform
+        if : ${{ vars.DESTROY == 'true' }}
         run: |
           cd ./terraform
           terraform destroy -auto-approve
