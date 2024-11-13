@@ -114,12 +114,12 @@ jobs:
       - name: Run plan terraform
         run: |
           cd ./terraform
-          terraform plan
+          terraform plan -out=plan.out
 
       - name: Apply terrafom
         run: |
           cd ./terraform
-          terraform apply -auto-approve
+          terraform apply plan.out
 
       - name: destroy terraform
         run: |
