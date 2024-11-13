@@ -33,7 +33,7 @@ jobs:
       - name: Checkear si S3 bucket existe
         id: check_s3
         run: |
-          BUCKET_NAME="tf-s3-state-orbidi-samorales"
+          BUCKET_NAME="tf-s3-state-orbidi-smorales"
           if aws s3 ls "s3://$BUCKET_NAME" 2>&1 | grep -q 'NoSuchBucket'; then
             echo "Bucket does not exist."
             cd ./tf-s3-state

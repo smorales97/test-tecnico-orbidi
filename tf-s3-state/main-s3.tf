@@ -2,7 +2,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "tf-s3-state-orbidi-samorales"
+  bucket = "tf-s3-state-orbidi-smorales"
 }
 
 resource "aws_dynamodb_table" "terraform_state_lock" {
