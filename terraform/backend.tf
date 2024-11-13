@@ -4,7 +4,7 @@ terraform {
     bucket         = "tf-s3-state-orbidi-sanmoral"
     key            = "terraform/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "terraform-locks"
+    dynamodb_table = "app-state-lock"
   }
 }
 
