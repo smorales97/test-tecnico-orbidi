@@ -8,6 +8,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+        # Terraform variables
+        TF_VAR_IMAGE_TAG: ${{ github.sha }}
+        TF_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+        TF_VAR_AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_SIMPLE_APP2: ${{ vars.SIMPLE_APP2 }}
+        TF_VAR_SIMPLE_APP1: ${{ vars.SIMPLE_APP1 }}
 
     permissions:
       id-token: write
@@ -16,24 +23,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Configure AWS credentials oidc
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: ${{ secrets.ROLE_AWS_GITHUB }}
             aws-region: ${{ secrets.AWS_REGION }}
-
-      #- name: Set up AWS CLI
-       # uses: aws-actions/configure-aws-credentials@v1
-        #with:
-         # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          #aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: View Replace
-        run: cat ./terraform/main.tf
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-      
+   
       - name: Checkear si S3 bucket existe
         id: check_s3
         run: |
@@ -47,69 +43,53 @@ jobs:
           else
             echo "Bucket exists."
           fi
+    
+          - name: Log in to Amazon ECR
+          id: login-ecr
+          run: |
+              aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          
+      - name: Check repository ${{ vars.SIMPLE_APP1 }}
+        run: |
+            repo_exists=$(aws ecr describe-repositories --repository-names ${{ vars.SIMPLE_APP1 }} --region ${{ secrets.AWS_REGION  }} || true)
 
-      - name: Initial IaC
-        run: |
-          cd ./terraform
-          terraform init -reconfigure
-          terraform init
-      - name: Run plan terraform
-        run: |
-          cd ./terraform
-          terraform plan -out=plan.out -var-file variables.tfvars
-      - name: Apply terrafom
-        run: |
-          cd ./terraform
-          terraform apply plan.out
-      
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        run: |
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-        
-      - name: Check repository App1
-        run: |
-            repo_exists=$(aws ecr describe-repositories --repository-names "simple_app1" --region "us-east-1" || true)
-
-            if ! echo "${repo_exists}" | grep -q "simple_app1"; then
-            # Si el repositorio no existe falla
-            exit 1
+            if ! echo "${repo_exists}" | grep -q ${{ vars.SIMPLE_APP1 }}; then
+              aws ecr create-repository --repository-name ${{ vars.SIMPLE_APP1 }} --region ${{ secrets.AWS_REGION  }}
             fi
             echo "El repositorio existe."
 
-      - name: Check repository App2
+      - name: Check repository ${{ vars.SIMPLE_APP2 }}
         run: |
-            repo_exists=$(aws ecr describe-repositories --repository-names "simple_app2" --region "us-east-1" || true)
+            repo_exists=$(aws ecr describe-repositories --repository-names ${{ vars.SIMPLE_APP2 }} --region ${{ secrets.AWS_REGION  }} || true)
 
-            if ! echo "${repo_exists}" | grep -q "simple_app2"; then
-            # Si el repositorio no existe falla
-            exit 1
+            if ! echo "${repo_exists}" | grep -q ${{ vars.SIMPLE_APP2 }}; then
+              aws ecr create-repository --repository-name ${{ vars.SIMPLE_APP2 }} --region ${{ secrets.AWS_REGION  }}
             fi
             echo "El repositorio existe."
 
       - name: Build App1
         run: |
-          # Set up variables
-          ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=simple_app1
-          IMAGE_TAG=${GITHUB_SHA::7}
-
-          # Build the Docker image
-          docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app1
-
-          # Tag and push the image to ECR
-          docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
+            # Set up variables
+            ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            ECR_REPOSITORY=${{ vars.SIMPLE_APP1 }}
+            IMAGE_TAG=${{ github.sha }}
+  
+            # Build the Docker image
+            docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app1
+  
+            # Tag and push the image to ECR
+            docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    
       - name: Build App2
         run: |
           # Set up variables
           ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          ECR_REPOSITORY=simple_app2
-          IMAGE_TAG=${GITHUB_SHA::7}
+          ECR_REPOSITORY=${{ vars.SIMPLE_APP2 }}
+          IMAGE_TAG=${{ github.sha }}
 
           # Build the Docker image
           docker build -t $ECR_REPOSITORY:latest -t $ECR_REPOSITORY:$IMAGE_TAG ./apps/simple-app2
@@ -120,3 +100,27 @@ jobs:
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          - name: Install Terraform
+          uses: hashicorp/setup-terraform@v2
+          with:
+            terraform_version: 1.9.0
+    
+      - name: Initial IaC
+        run: |
+          cd ./terraform
+          terraform init
+
+      - name: Run plan terraform
+        run: |
+          cd ./terraform
+          terraform plan -out=plan.out
+
+      - name: Apply terrafom
+        run: |
+          cd ./terraform
+          terraform apply plan.out
+
+      - name: destroy terraform
+        run: |
+          cd ./terraform
+          terraform destroy -auto-approve
