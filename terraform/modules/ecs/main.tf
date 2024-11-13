@@ -72,7 +72,7 @@ resource "aws_lb_listener_rule" "simple-app1_rule" {
 
   condition {
     path_pattern {
-      values = ["/app1/"]
+      values = ["/app1"]
     }
   }
 }
@@ -155,7 +155,7 @@ resource "aws_lb_listener_rule" "simple-app2_rule" {
 
   condition {
     path_pattern {
-      values = ["/app2/"]
+      values = ["/app2"]
     }
   }
 }
