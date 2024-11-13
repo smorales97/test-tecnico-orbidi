@@ -5,6 +5,11 @@
 resource "aws_ecs_cluster" "apps" {
   name = "apps-cluster"
 
+    setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
   depends_on = [aws_lb_listener.apps_listener]
 }
 
@@ -99,13 +104,14 @@ resource "aws_ecs_task_definition" "simple-app1" {
   container_definitions = jsonencode([
     {
       name      = "simple-App1-Container"
-      image     = "${var.app1_image_url}:latest"
+      image     = "${var.AWS_ACCOUNT_ID}.dkr.ecr.${var.AWS_REGION}.amazonaws.com/${var.SIMPLE_APP1}:${var.IMAGE_TAG}"
       cpu       = 256
       memory    = 512
       essential = true
       portMappings = [
         {
           containerPort = 8000
+          protocol      = "tcp"
           hostPort      = 8000
         }
       ]
@@ -181,13 +187,14 @@ resource "aws_ecs_task_definition" "simple-app2" {
   container_definitions = jsonencode([
     {
       name      = "simple-App2-Container"
-      image     = "${var.app2_image_url}:latest"
+      image     = "${var.AWS_ACCOUNT_ID}.dkr.ecr.${var.AWS_REGION}.amazonaws.com/${var.SIMPLE_APP2}:${var.IMAGE_TAG}"
       cpu       = 256
       memory    = 512
       essential = true
       portMappings = [
         {
           containerPort = 8001
+          protocol      = "tcp"
           hostPort      = 8001
         }
       ]

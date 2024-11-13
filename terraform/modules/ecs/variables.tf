@@ -15,16 +15,6 @@ variable "ecs_sg" {
   type        = string
 }
 
-variable "app1_image_url" {
-  description = "URI de la imagen de Docker de app1 en ECR"
-  type        = string
-}
-
-variable "app2_image_url" {
-  description = "URI de la imagen de Docker de app2 en ECR"
-  type        = string
-}
-
 variable "app1_cpu" {
   description = "Cantidad de CPU asignada a la tarea de app1"
   type        = number
@@ -59,4 +49,29 @@ variable "app2_desired_count" {
   description = "Número deseado de instancias de la tarea de app2"
   type        = number
   default     = 1
+}
+
+variable "AWS_ACCOUNT_ID" {
+  description = "ID de la cuenta AWS"
+  type        = string
+}
+
+variable "AWS_REGION" {
+  description = "La región de AWS en la que se crean los repositorios de ECR"
+  type        = string
+}
+
+variable "IMAGE_TAG" {
+  description = "Etiqueta de la imagen de Docker"
+  type        = string
+}
+
+variable "SIMPLE_APP1" {
+  description = "El nombre del repositorio de ECR para app1"
+  type        = string
+}
+
+variable "SIMPLE_APP2" {
+  description = "El nombre del repositorio de ECR para app2"
+  type        = string
 }

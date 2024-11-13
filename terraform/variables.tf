@@ -1,26 +1,24 @@
 # variables.tf
-variable "aws_region" {
+variable "AWS_REGION" {
   description = "AWS region"
-  default     = "us-east-1"
 }
 
-variable "simple-app1" {
+variable "SIMPLE_APP1" {
   description = "Docker image URI for app1"
   type        = string
 }
 
-variable "simple-app2" {
+variable "SIMPLE_APP2" {
   description = "Docker image URI for app2"
   type        = string
 }
 
-variable "state_bucket_name" {
-  description = "Bucket name"
+variable "IMAGE_TAG" {
+  description = "Docker image tag"
   type        = string
 }
 
-variable "dynamodb_table" {
-  description = "Dynamo table lock id"
+variable "AWS_ACCOUNT_ID" {
+  description = "AWS account ID"
   type        = string
-
 }

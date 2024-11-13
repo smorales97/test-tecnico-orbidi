@@ -23,9 +23,32 @@ resource "aws_subnet" "public" {
   cidr_block              = var.public_subnet_cidr_blocks[count.index]
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
+
   tags = {
     Name = "public-subnet-${count.index + 1}"
   }
+}
+
+# Route Table for Public Subnets
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.main.id
+
+  # Route for internet access
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.internet_gateway.id
+  }
+
+  tags = {
+    Name = "public-rt"
+  }
+}
+
+# Associate Route Table with Each Public Subnet
+resource "aws_route_table_association" "public_rt_association" {
+  count          = length(aws_subnet.public)
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public_rt.id
 }
 
 # Grupo de seguridad para ECS
