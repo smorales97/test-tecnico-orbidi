@@ -28,7 +28,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: ${{ secrets.ROLE_AWS_GITHUB }}
-            aws-region: ${{ secrets.AWS_REGION }}
+            aws-region: ${{ vars.AWS_REGION }}
    
       - name: Checkear si S3 bucket existe
         id: check_s3
@@ -47,30 +47,30 @@ jobs:
       - name: Log in to Amazon ECR
         id: login-ecr
         run: |
-              aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+              aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
           
       - name: Check repository ${{ vars.SIMPLE_APP1 }}
         run: |
-            repo_exists=$(aws ecr describe-repositories --repository-names ${{ vars.SIMPLE_APP1 }} --region ${{ secrets.AWS_REGION  }} || true)
+            repo_exists=$(aws ecr describe-repositories --repository-names ${{ vars.SIMPLE_APP1 }} --region ${{ vars.AWS_REGION  }} || true)
 
             if ! echo "${repo_exists}" | grep -q ${{ vars.SIMPLE_APP1 }}; then
-              aws ecr create-repository --repository-name ${{ vars.SIMPLE_APP1 }} --region ${{ secrets.AWS_REGION  }}
+              aws ecr create-repository --repository-name ${{ vars.SIMPLE_APP1 }} --region ${{ vars.AWS_REGION  }}
             fi
             echo "El repositorio existe."
 
       - name: Check repository ${{ vars.SIMPLE_APP2 }}
         run: |
-            repo_exists=$(aws ecr describe-repositories --repository-names ${{ vars.SIMPLE_APP2 }} --region ${{ secrets.AWS_REGION  }} || true)
+            repo_exists=$(aws ecr describe-repositories --repository-names ${{ vars.SIMPLE_APP2 }} --region ${{ vars.AWS_REGION  }} || true)
 
             if ! echo "${repo_exists}" | grep -q ${{ vars.SIMPLE_APP2 }}; then
-              aws ecr create-repository --repository-name ${{ vars.SIMPLE_APP2 }} --region ${{ secrets.AWS_REGION  }}
+              aws ecr create-repository --repository-name ${{ vars.SIMPLE_APP2 }} --region ${{ vars.AWS_REGION  }}
             fi
             echo "El repositorio existe."
 
       - name: Build App1
         run: |
             # Set up variables
-            ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
             ECR_REPOSITORY=${{ vars.SIMPLE_APP1 }}
             IMAGE_TAG=${{ github.sha }}
   
@@ -87,7 +87,7 @@ jobs:
       - name: Build App2
         run: |
           # Set up variables
-          ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
           ECR_REPOSITORY=${{ vars.SIMPLE_APP2 }}
           IMAGE_TAG=${{ github.sha }}
 
